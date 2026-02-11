@@ -20,3 +20,4 @@ async def init_indexes(db: AsyncIOMotorDatabase) -> None:
 
 
 
+
