@@ -16,6 +16,17 @@ class DishInDB(MongoModel):
     restaurant_name: str
 
 
+class DishCreate(BaseModel):
+    title: str
+    description: str
+    price: float
+    image_url: str
+    category: str
+    restaurant_name: str
+    rating: float | None = None
+    rating_count: int | None = None
+
+
 class DishPublic(BaseModel):
     id: str
     title: str

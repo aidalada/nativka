@@ -18,10 +18,19 @@ class AuthService:
         if existing:
             raise bad_request("email_taken", "User with this email already exists")
 
+        try:
+            password_hash = get_password_hash(data.password)
+        except Exception:
+            # Не даём серверу падать 500‑кой, а возвращаем понятную 400‑ошибку.
+            raise bad_request(
+                "invalid_password",
+                "Password cannot be processed. Try a shorter, simpler password (ASCII, <= 128 chars).",
+            )
+
         user_in = UserInDB(
             name=data.name,
             email=data.email,
-            password_hash=get_password_hash(data.password),
+            password_hash=password_hash,
             created_at=utcnow(),
         )
         user = await self.users_repo.create(user_in)

@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from app.schemas.dish import DishInDB
+from app.schemas.dish import DishCreate, DishInDB
 
 
 class DishesRepository:
@@ -47,6 +47,15 @@ class DishesRepository:
         total = await self._col.count_documents(query)
         docs = await cursor.skip(skip).limit(limit).to_list(length=limit)
         return [DishInDB(**d) for d in docs], total
+
+    async def create(self, data: DishCreate) -> DishInDB:
+        payload: Dict[str, Any] = data.model_dump(exclude_unset=True)
+        # значения по умолчанию
+        payload.setdefault("rating", 0.0)
+        payload.setdefault("rating_count", 0)
+        result = await self._col.insert_one(payload)
+        payload["_id"] = result.inserted_id
+        return DishInDB(**payload)
 
     async def distinct_categories(self) -> List[str]:
         return await self._col.distinct("category")

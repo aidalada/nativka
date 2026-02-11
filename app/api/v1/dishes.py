@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query
 
 from app.core.deps import get_db
 from app.repositories.dishes_repo import DishesRepository
-from app.schemas.dish import DishPublic
+from app.schemas.dish import DishCreate, DishPublic
 from app.services.dish_service import DishService
 from app.utils.errors import not_found
 from app.utils.pagination import paginate
@@ -22,6 +22,23 @@ async def list_dishes(
     service = DishService(DishesRepository(db))
     items, total = await service.list_dishes(q=q, category=category, sort=sort, page=page, limit=limit)
     return paginate(items, total, page, limit)
+
+
+@router.post("", response_model=DishPublic)
+async def create_dish(payload: DishCreate, db=Depends(get_db)):
+    repo = DishesRepository(db)
+    dish_in_db = await repo.create(payload)
+    return DishPublic(
+        id=str(dish_in_db.id),
+        title=dish_in_db.title,
+        description=dish_in_db.description,
+        price=dish_in_db.price,
+        image_url=dish_in_db.image_url,
+        category=dish_in_db.category,
+        rating=dish_in_db.rating,
+        rating_count=dish_in_db.rating_count,
+        restaurant_name=dish_in_db.restaurant_name,
+    )
 
 
 @router.get("/{dish_id}", response_model=DishPublic)

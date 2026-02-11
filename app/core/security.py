@@ -6,7 +6,12 @@ from passlib.context import CryptContext
 
 from app.core.config import settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Используем pbkdf2_sha256 — современный, безопасный алгоритм без ограничения
+# на 72 байта и без прямой зависимости от bcrypt-библиотеки.
+pwd_context = CryptContext(
+    schemes=["pbkdf2_sha256"],
+    deprecated="auto",
+)
 
 
 def get_password_hash(password: str) -> str:
